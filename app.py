@@ -11,6 +11,7 @@ import seaborn as sns
 import shutil
 import uuid
 from source import *
+import matplotlib.pyplot as plt
 
 # Page Configuration
 st.set_page_config(
@@ -122,7 +123,7 @@ if 'selected_use_case' not in st.session_state:
     st.session_state['selected_use_case'] = 'credit'
 if 'sample_loaded' not in st.session_state:
     st.session_state['sample_loaded'] = False
-if 'session_dir' not in st.session_state:
+if not st.session_state.get('session_dir'):
     st.session_state['session_dir'] = _get_unique_session_dir()
 if 'cleanup_triggered' not in st.session_state:
     st.session_state['cleanup_triggered'] = False
@@ -196,12 +197,12 @@ if st.session_state['current_page'] == "Data Upload & Configuration":
         st.session_state['selected_use_case'] = selected_use_case
 
         st.markdown("###  ")
-        if st.button("Load Sample Dataset", key="load_sample_btn", use_container_width=True):
+        if st.button("Load Sample Dataset", key="load_sample_btn", width='stretch'):
             with st.spinner(f"Loading sample {selected_use_case} dataset..."):
                 try:
                     primary_df, baseline_df, config_defaults = setup_sample_data(
                         use_case=selected_use_case)
-
+                    st.session_state['primary_df'] = primary_df
                     # Copy sample files to unique session directory
                     session_dir = st.session_state['session_dir']
                     os.makedirs(session_dir, exist_ok=True)
@@ -239,14 +240,114 @@ if st.session_state['current_page'] == "Data Upload & Configuration":
                 except Exception as e:
                     st.error(f"Error loading sample dataset: {e}")
 
-        # Display loaded sample datasets
+        # Display loaded sample datasets with interactive exploration
         if st.session_state.get('sample_loaded', False) and st.session_state['primary_df'] is not None:
-            st.markdown(f"**Primary Dataset Preview:**")
-            st.dataframe(st.session_state['primary_df'].head())
+            st.markdown(f"**📊 Interactive Dataset Explorer**")
+
+            explore_tab1, explore_tab2, explore_tab3 = st.tabs(
+                ["Data Preview", "Column Statistics", "Data Quality Quick View"])
+
+            with explore_tab1:
+                # Interactive data preview with filters
+                col1, col2, col3 = st.columns([2, 1, 1])
+                with col1:
+                    search_col = st.selectbox("Filter by column:", [
+                                              "All"] + list(st.session_state['primary_df'].columns), key="sample_search_col")
+                with col2:
+                    num_rows = st.slider("Rows to display:", 5, min(
+                        100, len(st.session_state['primary_df'])), 10, key="sample_rows")
+                with col3:
+                    sort_col = st.selectbox("Sort by:", [
+                                            "None"] + list(st.session_state['primary_df'].columns), key="sample_sort")
+
+                df_display = st.session_state['primary_df'].copy()
+                if sort_col != "None":
+                    df_display = df_display.sort_values(sort_col)
+
+                st.dataframe(df_display.head(num_rows),
+                             width='stretch', height=400)
+                st.caption(
+                    f"Showing {num_rows} of {len(st.session_state['primary_df'])} rows")
+
+            with explore_tab2:
+                # Column statistics
+                col_to_analyze = st.selectbox(
+                    "Select column to analyze:", st.session_state['primary_df'].columns, key="sample_col_analyze")
+
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.markdown("**Basic Statistics**")
+                    if pd.api.types.is_numeric_dtype(st.session_state['primary_df'][col_to_analyze]):
+                        stats = st.session_state['primary_df'][col_to_analyze].describe(
+                        )
+                        st.dataframe(stats)
+                    else:
+                        value_counts = st.session_state['primary_df'][col_to_analyze].value_counts(
+                        )
+                        st.dataframe(value_counts)
+
+                with col2:
+                    st.markdown("**Distribution Visualization**")
+                    if pd.api.types.is_numeric_dtype(st.session_state['primary_df'][col_to_analyze]):
+                        fig = plt.figure(figsize=(6, 4))
+                        st.session_state['primary_df'][col_to_analyze].hist(
+                            bins=30, edgecolor='black')
+                        plt.xlabel(col_to_analyze)
+                        plt.ylabel('Frequency')
+                        plt.title(f'Distribution of {col_to_analyze}')
+                        st.pyplot(fig)
+                        plt.close()
+                    else:
+                        fig = plt.figure(figsize=(6, 4))
+                        st.session_state['primary_df'][col_to_analyze].value_counts().head(
+                            10).plot(kind='bar')
+                        plt.xlabel(col_to_analyze)
+                        plt.ylabel('Count')
+                        plt.title(f'Top 10 Values in {col_to_analyze}')
+                        plt.xticks(rotation=45, ha='right')
+                        plt.tight_layout()
+                        st.pyplot(fig)
+                        plt.close()
+
+            with explore_tab3:
+                st.markdown("**Quick Data Quality Overview**")
+                col1, col2, col3 = st.columns(3)
+                with col1:
+                    missing_pct = (st.session_state['primary_df'].isnull(
+                    ).sum() / len(st.session_state['primary_df']) * 100)
+                    st.metric("Columns with Missing Data",
+                              f"{(missing_pct > 0).sum()}/{len(st.session_state['primary_df'].columns)}")
+                with col2:
+                    duplicates = st.session_state['primary_df'].duplicated(
+                    ).sum()
+                    st.metric("Duplicate Rows", duplicates)
+                with col3:
+                    numeric_cols = st.session_state['primary_df'].select_dtypes(
+                        include=np.number).columns
+                    st.metric("Numeric Columns", len(numeric_cols))
+
+                # Missing data heatmap
+                st.markdown("**Missing Data Pattern**")
+                missing_data = st.session_state['primary_df'].isnull().sum()
+                if missing_data.sum() > 0:
+                    fig = plt.figure(figsize=(10, 4))
+                    missing_data[missing_data > 0].plot(
+                        kind='bar', color='coral')
+                    plt.xlabel('Columns')
+                    plt.ylabel('Missing Values Count')
+                    plt.title('Missing Values by Column')
+                    plt.xticks(rotation=45, ha='right')
+                    plt.tight_layout()
+                    st.pyplot(fig)
+                    plt.close()
+                else:
+                    st.success("✅ No missing data detected!")
 
             if st.session_state['baseline_df'] is not None:
-                st.markdown(f"**Baseline Dataset Preview:**")
-                st.dataframe(st.session_state['baseline_df'].head())
+                st.divider()
+                st.markdown(f"**📊 Baseline Dataset Preview**")
+                st.dataframe(st.session_state['baseline_df'].head(
+                    10), width='stretch')
 
         st.divider()
 
@@ -315,8 +416,12 @@ if st.session_state['current_page'] == "Data Upload & Configuration":
             key="sensitive_cols_input"
         )
 
-        st.markdown(
-            f"For FinTech Innovators Inc., a key concern is ensuring fair lending practices. Therefore, identifying sensitive attributes like `{', '.join(sensitive_cols_input) if sensitive_cols_input else '...'}` is paramount to later check for potential biases.")
+        if sensitive_cols_input:
+            st.markdown(
+                f"A key concern is ensuring fairness. The selected sensitive attributes `{', '.join(sensitive_cols_input)}` will be analyzed for potential biases.")
+        else:
+            st.markdown(
+                f"Select sensitive attributes to enable bias detection in your dataset.")
 
         # Protected Groups configuration
         with st.expander("Define Protected Groups (e.g., Privileged/Unprivileged)"):
@@ -476,24 +581,6 @@ if st.session_state['current_page'] == "Data Upload & Configuration":
             custom_thresholds['bias_thresholds']['disparate_impact_ratio'] = {
                 'warn_lower': bias_dir_warn_l, 'warn_upper': bias_dir_warn_u, 'fail_lower': bias_dir_fail_l, 'fail_upper': bias_dir_fail_u}
 
-            st.markdown(
-                f"**Proxy TPR Gap:** (Abs > value WARN, Abs > value FAIL)")
-            bias_tpr_warn = st.number_input(
-                "TPR Gap WARN Threshold", value=0.10, format="%.2f", key="bias_tpr_warn")
-            bias_tpr_fail = st.number_input(
-                "TPR Gap FAIL Threshold", value=0.20, format="%.2f", key="bias_tpr_fail")
-            custom_thresholds['bias_thresholds']['proxy_tpr_gap'] = {
-                'warn': bias_tpr_warn, 'fail': bias_tpr_fail}
-
-            st.markdown(
-                f"**Proxy FPR Gap:** (Abs > value WARN, Abs > value FAIL)")
-            bias_fpr_warn = st.number_input(
-                "FPR Gap WARN Threshold", value=0.10, format="%.2f", key="bias_fpr_warn")
-            bias_fpr_fail = st.number_input(
-                "FPR Gap FAIL Threshold", value=0.20, format="%.2f", key="bias_fpr_fail")
-            custom_thresholds['bias_thresholds']['proxy_fpr_gap'] = {
-                'warn': bias_fpr_warn, 'fail': bias_fpr_fail}
-
             st.markdown(f"### Drift Thresholds (PSI)")
             st.markdown(
                 f"**Population Stability Index (PSI):** (> value WARN, > value FAIL)")
@@ -504,7 +591,23 @@ if st.session_state['current_page'] == "Data Upload & Configuration":
             custom_thresholds['drift_thresholds'] = {
                 'psi': {'warn': drift_psi_warn, 'fail': drift_psi_fail}}
 
-        if st.button("Apply Configuration", key="apply_config_btn"):
+        col1, col2 = st.columns([1, 1])
+        with col1:
+            apply_config_clicked = st.button(
+                "Apply Configuration", key="apply_config_btn", width='stretch')
+        with col2:
+            cleanup_clicked = st.button(
+                "🗑️ Clear All Data & Reset", key="cleanup_btn", width='stretch', type="secondary")
+
+        if cleanup_clicked:
+            if _cleanup_session_files():
+                st.success(
+                    "All data cleared successfully! The page will refresh.")
+                st.rerun()
+            else:
+                st.error("Failed to clear all data. Some files may remain.")
+
+        if apply_config_clicked:
             if st.session_state['primary_df'] is not None and target_col_input and sensitive_cols_input:
                 try:
                     custom_thresholds['protected_groups'] = configured_protected_groups
@@ -532,9 +635,33 @@ if st.session_state['current_page'] == "Data Upload & Configuration":
                     "Please upload a primary dataset, select a target column, and sensitive attributes to apply configuration.")
 
         if st.session_state['assessment_config']:
-            st.subheader("Current Assessment Configuration:")
-            # st.json(st.session_state['assessment_config'])
-            st.markdown(f"Maya has successfully loaded the datasets and reviewed the configuration. She can see the target column, the sensitive attributes, and the default (and any custom) thresholds for each metric. This initial setup is critical to ensure the assessment is aligned with project goals and regulatory requirements.")
+            st.subheader("✅ Current Assessment Configuration Applied")
+
+            config = st.session_state['assessment_config']
+
+            with st.expander("View Configuration Details", expanded=False):
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.markdown("**Target Column:**")
+                    st.code(config['target_column'])
+                    st.markdown("**Sensitive Attributes:**")
+                    for attr in config['sensitive_attributes']:
+                        st.code(attr)
+                with col2:
+                    st.markdown("**Protected Groups:**")
+                    for attr, groups in config['protected_groups'].items():
+                        st.markdown(f"*{attr}:*")
+                        st.text(f"  Privileged: {groups['privileged']}")
+                        st.text(f"  Unprivileged: {groups['unprivileged']}")
+
+            st.info(
+                f"📊 **Dataset:** {st.session_state.get('primary_data_filename', 'Unknown')} ({len(st.session_state['primary_df'])} rows, {len(st.session_state['primary_df'].columns)} columns)")
+
+            if st.session_state.get('baseline_df') is not None:
+                st.info(
+                    f"📊 **Baseline Dataset:** {st.session_state.get('baseline_data_filename', 'Unknown')} ({len(st.session_state['baseline_df'])} rows)")
+
+            st.markdown(f"Configuration successfully applied. You can now proceed to the **Data Quality**, **Bias Metrics**, and **Drift** assessment steps using the sidebar navigation.")
     else:
         st.info(
             "Please upload a primary dataset or load one to proceed with configuration.")
@@ -646,17 +773,6 @@ $$""")
 
             st.dataframe(pd.DataFrame(table_data))
 
-            st.markdown(f"---")
-
-            st.markdown(f"Maya's data quality assessment reveals critical insights. The table clearly shows features flagged with 'WARN' or 'FAIL'. For example, `income` might have a 'FAIL' for missingness, indicating a significant portion of income data is absent. `credit_score` might show a 'FAIL' for type inconsistency due to non-numeric entries, which would break any numerical operations. `age` could have a 'WARN' for range violations, requiring a cleanup of outlier values.")
-            st.markdown(f"These findings directly inform Maya's next steps:")
-            st.markdown(f"-   **Missing Data:** Maya must decide on an imputation strategy (e.g., mean, median, predictive imputation) or whether the column should be dropped.")
-            st.markdown(
-                f"-   **Type Inconsistencies:** Requires data cleaning to convert values to the correct type or remove corrupted entries.")
-            st.markdown(
-                f"-   **Range Violations:** Outliers need to be handled, either corrected, capped, or removed, to prevent skewed model learning.")
-            st.markdown(f"By addressing these issues proactively, Maya ensures the credit approval model receives reliable data, preventing it from making decisions based on faulty inputs.")
-
 # Page: Bias Metrics
 if st.session_state['current_page'] == "Bias Metrics":
     st.markdown(f"# 3. Bias Metric Computation: Ensuring Fairness in Data")
@@ -681,24 +797,15 @@ $$""")
     st.markdown(
         r"where $Y=1$ is the favorable outcome (e.g., loan repaid) and $A$ denotes the sensitive attribute, with $A_{\text{unprivileged}}$ and $A_{\text{privileged}}$ representing the unprivileged and privileged groups, respectively.")
 
-    st.markdown(r"**Proxy True Positive Rate Gap (TPR Gap):** In a pre-training context, this can be interpreted as the difference in the *actual positive outcome rate* (prevalence of $Y=1$) between unprivileged and privileged groups. A value close to 0 indicates similar rates of positive outcomes for both groups in the raw data.")
-    st.markdown(
-        r"""
-$$ 
-\text{{Proxy TPR Gap}} = P(Y=1 | A_{\text{unprivileged}}) - P(Y=1 | A_{\text{privileged}})
-$$""")
-    st.markdown(
-        r"where $Y=1$ is the favorable outcome (e.g., loan repaid) and $A$ denotes the sensitive attribute, with $A_{\text{unprivileged}}$ and $A_{\text{privileged}}$ representing the unprivileged and privileged groups, respectively.")
-
-    st.markdown(r"**Proxy False Positive Rate Gap (FPR Gap):** Similarly, in a pre-training context, this can be interpreted as the difference in the *actual negative outcome rate* (prevalence of $Y=0$) between unprivileged and privileged groups. A value close to 0 indicates similar rates of negative outcomes for both groups in the raw data.")
-    st.markdown(
-        r"""
-$$ 
-\text{{Proxy FPR Gap}} = P(Y=0 | A_{\text{unprivileged}}) - P(Y=0 | A_{\text{privileged}}) 
-$$
-""")
-    st.markdown(
-        r"where $Y=0$ is the unfavorable outcome (e.g., loan not repaid) and $A$ denotes the sensitive attribute, with $A_{\text{unprivileged}}$ and $A_{\text{privileged}}$ representing the unprivileged and privileged groups, respectively.")
+    st.info("""
+    **Note on Fairness Metrics**: This assessment focuses on **pre-training fairness** using only outcome data (Y). 
+    We compute:
+    - **Demographic Parity Difference (DPD)**: Difference in positive outcome rates between groups
+    - **Disparate Impact Ratio (DIR)**: Ratio of positive outcome rates
+    
+    **Not included**: TPR/FPR gaps require model predictions (Ŷ) and should be computed post-training.
+    True TPR = P(Ŷ=1 | Y=1, group) and FPR = P(Ŷ=1 | Y=0, group) - these metrics assess model behavior, not data.
+    """)
 
     if not st.session_state.get('config_applied'):
         st.warning(
@@ -758,41 +865,8 @@ $$
                     "Threshold (Warn/Fail)": f"< {warn_dir_l:.2f} or > {warn_dir_u:.2f} (W) / < {fail_dir_l:.2f} or > {fail_dir_u:.2f} (F)"
                 })
 
-                warn_tpr_gap = bias_thresholds['proxy_tpr_gap']['warn']
-                fail_tpr_gap = bias_thresholds['proxy_tpr_gap']['fail']
-                table_data.append({
-                    "Sensitive Attribute": attr,
-                    "Metric": "Proxy TPR Gap",
-                    "Value": f"{metrics['proxy_tpr_gap']:.4f}",
-                    "Status": metrics['proxy_tpr_gap_status'],
-                    "Threshold (Warn/Fail)": f"Abs > {warn_tpr_gap:.2f} (W) / > {fail_tpr_gap:.2f} (F)"
-                })
-
-                warn_fpr_gap = bias_thresholds['proxy_fpr_gap']['warn']
-                fail_fpr_gap = bias_thresholds['proxy_fpr_gap']['fail']
-                table_data.append({
-                    "Sensitive Attribute": attr,
-                    "Metric": "Proxy FPR Gap",
-                    "Value": f"{metrics['proxy_fpr_gap']:.4f}",
-                    "Status": metrics['proxy_fpr_gap_status'],
-                    "Threshold (Warn/Fail)": f"Abs > {warn_fpr_gap:.2f} (W) / > {fail_fpr_gap:.2f} (F)"
-                })
-
             st.dataframe(pd.DataFrame(table_data))
 
-            st.markdown(f"---")
-
-            st.markdown(f"The bias metrics report provides Maya with quantitative evidence of fairness (or lack thereof) in the raw data. For instance, if the `region` attribute shows a Disparate Impact Ratio significantly below 1 (e.g., for the 'South' region), it indicates that customers from this region are less likely to have favorable credit outcomes ($Y=1$) in the dataset compared to the privileged 'North' region. This is a critical 'WARN' or 'FAIL' condition for FinTech Innovators Inc.")
-            st.markdown(
-                f"Maya must now consider strategies to mitigate these biases *before* model training. This could involve:")
-            st.markdown(
-                f"-   **Data collection review:** Investigating if the data collection process itself introduced biases.")
-            st.markdown(
-                f"-   **Feature engineering:** Creating new features that might reduce reliance on sensitive attributes.")
-            st.markdown(
-                f"-   **Resampling techniques:** Over-sampling underrepresented groups or under-sampling overrepresented groups to balance the dataset.")
-            st.markdown(
-                f"These steps are crucial for FinTech Innovators Inc. to ensure equitable credit access and avoid legal or reputational risks.")
 
 # Page: Drift
 if st.session_state['current_page'] == "Drift":
@@ -913,15 +987,6 @@ if st.session_state['current_page'] == "Drift":
                 st.info(
                     "No common numerical features found or selected for drift visualization.")
 
-            st.markdown(f"---")
-
-            st.markdown(f"Maya examines the PSI results to detect significant shifts. For instance, if `income` or `credit_score` show a 'WARN' or 'FAIL' PSI value, it means the distribution of these critical features in the new dataset has changed notably from the baseline. The visualizations provide an intuitive understanding of these shifts. A shift in `income` distribution, for example, could indicate changing economic conditions or a different customer segment applying for credit.")
-            st.markdown(f"This insight is crucial for Maya:")
-            st.markdown(f"-   **Model Re-training:** A significant drift (`FAIL`) in key features might necessitate immediate re-training of the credit approval model using the new data.")
-            st.markdown(
-                f"-   **Monitoring Strategy:** Even a 'WARN' suggests closer monitoring of the model's performance on these features in production.")
-            st.markdown(f"-   **Business Context:** It prompts FinTech Innovators Inc. to investigate the business reasons behind the drift, informing both model development and business strategy.")
-            st.markdown(f"By systematically identifying data drift, Maya helps FinTech Innovators Inc. maintain accurate and relevant models, preventing unexpected performance degradation in live environments.")
         else:
             st.info(st.session_state['drift_detection_results']['message'])
 
@@ -943,7 +1008,39 @@ if st.session_state['current_page'] == "Summary & Export":
             st.session_state['drift_detection_results'] = {
                 'overall_drift_status': 'N/A', 'message': 'Baseline dataset not provided for drift detection.'}
 
-        if st.button("Generate Final Report and Export Artifacts", key="generate_reports_btn"):
+        # Display current assessment status
+        st.subheader("Assessment Status Overview")
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            dq_status = st.session_state['data_quality_results']['overall_dataset_quality_status']
+            if dq_status == 'FAIL':
+                st.error(f"Data Quality: {dq_status}")
+            elif dq_status == 'WARN':
+                st.warning(f"Data Quality: {dq_status}")
+            else:
+                st.success(f"Data Quality: {dq_status}")
+        with col2:
+            bias_status = st.session_state['bias_metrics_results']['overall_bias_status']
+            if bias_status == 'FAIL':
+                st.error(f"Bias: {bias_status}")
+            elif bias_status == 'WARN':
+                st.warning(f"Bias: {bias_status}")
+            else:
+                st.success(f"Bias: {bias_status}")
+        with col3:
+            drift_status = st.session_state['drift_detection_results']['overall_drift_status']
+            if drift_status == 'FAIL':
+                st.error(f"Drift: {drift_status}")
+            elif drift_status == 'WARN':
+                st.warning(f"Drift: {drift_status}")
+            elif drift_status == 'N/A':
+                st.info(f"Drift: {drift_status}")
+            else:
+                st.success(f"Drift: {drift_status}")
+
+        st.divider()
+
+        if st.button("Generate Final Report and Export Artifacts", key="generate_reports_btn", width='stretch', type="primary"):
             with st.spinner("Generating reports and bundling artifacts..."):
                 st.session_state['readiness_decision'] = make_readiness_decision(
                     st.session_state['data_quality_results'],
@@ -973,8 +1070,43 @@ if st.session_state['current_page'] == "Summary & Export":
 
             st.success("Reports Generated and Artifacts Bundled!")
 
-        if st.session_state['readiness_decision'] != 'Pending Configuration':
-            st.subheader("Overall Dataset Readiness Decision:")
+            # Download buttons
+            st.divider()
+            st.subheader("Download Reports")
+
+            if st.session_state.get('reports_folder_path') and os.path.exists(st.session_state['reports_folder_path']):
+                summary_file_path = os.path.join(
+                    st.session_state['reports_folder_path'], 'session04_executive_summary.md')
+                if os.path.exists(summary_file_path):
+                    with open(summary_file_path, 'r') as f:
+                        summary_content = f.read()
+
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        st.download_button(
+                            label="📄 Download Executive Summary (MD)",
+                            data=summary_content,
+                            file_name="executive_summary.md",
+                            mime="text/markdown",
+                            width='stretch'
+                        )
+
+                    # Download zip archive if available
+                    if st.session_state.get('zip_archive_path') and os.path.exists(st.session_state['zip_archive_path']):
+                        with col2:
+                            with open(st.session_state['zip_archive_path'], 'rb') as f:
+                                zip_content = f.read()
+                            st.download_button(
+                                label="📦 Download All Reports (ZIP)",
+                                data=zip_content,
+                                file_name=os.path.basename(
+                                    st.session_state['zip_archive_path']),
+                                mime="application/zip",
+                                width='stretch'
+                            )
+
+                    st.divider()
+                    st.subheader("Executive Summary Preview")
             st.markdown(f"## **{st.session_state['readiness_decision']}**")
 
             st.markdown(f"---")
@@ -1023,11 +1155,6 @@ if st.session_state['current_page'] == "Summary & Export":
             else:
                 st.info(
                     "Reports folder path not set. Please generate reports first.")
-
-            st.markdown(f"---")
-
-            st.markdown(f"Maya has now generated a comprehensive suite of reports. The `overall_dataset_readiness_status` provides a definitive answer for her stakeholders. For FinTech Innovators Inc., a 'DO NOT DEPLOY' status (due to the simulated 'FAIL' conditions in our sample data) means Maya must halt the model development pipeline. She then shares the `session04_executive_summary.md` with the Model Validator and Risk/Compliance Partner. This markdown document provides a high-level overview, highlighting critical issues (e.g., \"Feature `income`: Missingness: 25.00% (`FAIL`)\", \"Sensitive Attribute `region`: Disparate Impact Ratio: 0.6700 (`FAIL`)\"), and the clear recommendation.")
-            st.markdown(f"The JSON reports (e.g., `data_quality_report.json`) provide the granular details necessary for deeper investigation by the technical team. This structured reporting ensures that FinTech Innovators Inc. maintains a clear audit trail for all data-related decisions and adheres to its internal governance framework.")
 
 
 # License

@@ -333,11 +333,7 @@ def load_and_configure_datasets(primary_path, target_column, sensitive_attribute
             # |diff| > 0.10 warn, >0.20 fail
             'demographic_parity_difference': {'warn': 0.10, 'fail': 0.20},
             # Ratio outside [0.8, 1.25] warn, outside [0.67, 1.5] fail
-            'disparate_impact_ratio': {'warn_lower': 0.8, 'warn_upper': 1.25, 'fail_lower': 0.67, 'fail_upper': 1.5},
-            # |diff| > 0.10 warn, >0.20 fail
-            'proxy_tpr_gap': {'warn': 0.10, 'fail': 0.20},
-            # |diff| > 0.10 warn, >0.20 fail
-            'proxy_fpr_gap': {'warn': 0.10, 'fail': 0.20}
+            'disparate_impact_ratio': {'warn_lower': 0.8, 'warn_upper': 1.25, 'fail_lower': 0.67, 'fail_upper': 1.5}
         },
         'drift_thresholds': {
             'psi': {'warn': 0.10, 'fail': 0.25}  # >0.10 warn, >0.25 fail
@@ -648,36 +644,9 @@ def compute_bias_metrics(df, target_column, sensitive_attributes, protected_grou
         attr_results['disparate_impact_ratio'] = dir_val
         attr_results['disparate_impact_ratio_status'] = dir_status
 
-        # Proxy TPR Gap (difference in actual positive outcome rates)
-        proxy_tpr_gap = p_unprivileged - p_privileged
-        proxy_tpr_gap_status = 'PASS'
-        if abs(proxy_tpr_gap) > bias_thresholds['proxy_tpr_gap']['fail']:
-            proxy_tpr_gap_status = 'FAIL'
-            if overall_status == 'PASS' or overall_status == 'WARN':
-                overall_status = 'FAIL'
-        elif abs(proxy_tpr_gap) > bias_thresholds['proxy_tpr_gap']['warn']:
-            proxy_tpr_gap_status = 'WARN'
-            if overall_status == 'PASS':
-                overall_status = 'WARN'
-        attr_results['proxy_tpr_gap'] = proxy_tpr_gap
-        attr_results['proxy_tpr_gap_status'] = proxy_tpr_gap_status
-
-        # Proxy FPR Gap (difference in actual negative outcome rates)
-        # P(Y=0 | A=group) = 1 - P(Y=1 | A=group)
-        p_negative_unprivileged = 1 - p_unprivileged
-        p_negative_privileged = 1 - p_privileged
-        proxy_fpr_gap = p_negative_unprivileged - p_negative_privileged
-        proxy_fpr_gap_status = 'PASS'
-        if abs(proxy_fpr_gap) > bias_thresholds['proxy_fpr_gap']['fail']:
-            proxy_fpr_gap_status = 'FAIL'
-            if overall_status == 'PASS' or overall_status == 'WARN':
-                overall_status = 'FAIL'
-        elif abs(proxy_fpr_gap) > bias_thresholds['proxy_fpr_gap']['warn']:
-            proxy_fpr_gap_status = 'WARN'
-            if overall_status == 'PASS':
-                overall_status = 'WARN'
-        attr_results['proxy_fpr_gap'] = proxy_fpr_gap
-        attr_results['proxy_fpr_gap_status'] = proxy_fpr_gap_status
+        # NOTE: Removed proxy TPR/FPR gaps - these require predictions (Ŷ) not just outcomes (Y)
+        # True TPR = P(Ŷ=1 | Y=1, group) and FPR = P(Ŷ=1 | Y=0, group)
+        # What we had was just outcome rate differences (same as DPD)
 
         bias_results[attr] = {
             'privileged_group': privileged_group,
@@ -727,22 +696,6 @@ def display_bias_metrics_results(bias_metrics_results, assessment_config):
             attr, "Disparate Impact Ratio",
             f"{metrics['disparate_impact_ratio']:.4f}", metrics['disparate_impact_ratio_status'],
             f"< {warn_dir_l:.2f} or > {warn_dir_u:.2f} (W) / < {fail_dir_l:.2f} or > {fail_dir_u:.2f} (F)"
-        ])
-
-        warn_tpr_gap = assessment_config['bias_thresholds']['proxy_tpr_gap']['warn']
-        fail_tpr_gap = assessment_config['bias_thresholds']['proxy_tpr_gap']['fail']
-        table_data.append([
-            attr, "Proxy TPR Gap",
-            f"{metrics['proxy_tpr_gap']:.4f}", metrics['proxy_tpr_gap_status'],
-            f"Abs > {warn_tpr_gap:.2f} (W) / > {fail_tpr_gap:.2f} (F)"
-        ])
-
-        warn_fpr_gap = assessment_config['bias_thresholds']['proxy_fpr_gap']['warn']
-        fail_fpr_gap = assessment_config['bias_thresholds']['proxy_fpr_gap']['fail']
-        table_data.append([
-            attr, "Proxy FPR Gap",
-            f"{metrics['proxy_fpr_gap']:.4f}", metrics['proxy_fpr_gap_status'],
-            f"Abs > {warn_fpr_gap:.2f} (W) / > {fail_fpr_gap:.2f} (F)"
         ])
 
     print(tabulate(table_data, headers=table_headers, tablefmt="grid"))
@@ -1074,9 +1027,7 @@ def generate_reports(data_quality_results, bias_metrics_results, drift_detection
             if attr == 'overall_bias_status':
                 continue
             if metrics['demographic_parity_difference_status'] != 'PASS' or \
-                    metrics['disparate_impact_ratio_status'] != 'PASS' or \
-                    metrics['proxy_tpr_gap_status'] != 'PASS' or \
-                    metrics['proxy_fpr_gap_status'] != 'PASS':  # Removed the extra ']' here
+                    metrics['disparate_impact_ratio_status'] != 'PASS':
                 f.write(
                     f"- **Sensitive Attribute `{attr}`:** (Privileged: `{metrics['privileged_group']}`, Unprivileged: `{', '.join(metrics['unprivileged_groups'])}`)\n")
                 if metrics['demographic_parity_difference_status'] != 'PASS':
@@ -1085,12 +1036,6 @@ def generate_reports(data_quality_results, bias_metrics_results, drift_detection
                 if metrics['disparate_impact_ratio_status'] != 'PASS':
                     f.write(
                         f"  - Disparate Impact Ratio: {metrics['disparate_impact_ratio']:.4f} (`{metrics['disparate_impact_ratio_status']}`)\n")
-                if metrics['proxy_tpr_gap_status'] != 'PASS':
-                    f.write(
-                        f"  - Proxy TPR Gap: {metrics['proxy_tpr_gap']:.4f} (`{metrics['proxy_tpr_gap_status']}`)\n")
-                if metrics['proxy_fpr_gap_status'] != 'PASS':
-                    f.write(
-                        f"  - Proxy FPR Gap: {metrics['proxy_fpr_gap']:.4f} (`{metrics['proxy_fpr_gap_status']}`)\n")
         f.write("--- \n\n")
 
         f.write("## 3. Drift Detection (Population Stability Index - PSI)\n")
