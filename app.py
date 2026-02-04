@@ -171,9 +171,9 @@ with st.sidebar:
 # Page: Data Upload & Configuration
 if st.session_state['current_page'] == "Data Upload & Configuration":
     st.markdown(f"# 1. Setting the Stage: Data Loading and Configuration")
-    st.markdown(f"Welcome to this hands-on lab designed for ML Engineers, Model Validators, and Risk/Compliance Partners. In this notebook, we will step into the shoes of Maya, a Senior ML Engineer at \"FinTech Innovators Inc.\". Maya's team is responsible for developing and maintaining robust machine learning models that adhere to strict regulatory standards and deliver fair outcomes to customers.")
-    st.markdown(f"Today, Maya is tasked with preparing a new dataset for a credit approval model. Before FinTech Innovators Inc. commits to costly model training and potential deployment, Maya needs to perform a comprehensive data quality and risk assessment. Her goal is to ensure the raw data meets fundamental quality standards, does not contain hidden biases, and has not drifted significantly from historical data, thereby preventing unnecessary model risk and ensuring compliance.")
-    st.markdown(f"This section guides Maya through loading her new credit application dataset and configuring parameters for a tailored assessment. Defining these parameters upfront is crucial to align the assessment with FinTech Innovators Inc.'s specific model requirements and compliance policies.")
+    st.markdown(f"Welcome to this hands-on lab designed for ML Engineers, Model Validators, and Risk/Compliance Partners. In this notebook, you will step into the role of a Senior ML Engineer at a leading technology company. Your team is responsible for developing and maintaining robust machine learning models that must meet high standards for data quality, fairness, and compliance.")
+    st.markdown(f"Today, you are tasked with preparing a new dataset for a machine learning project. Before your organization commits to model training and deployment, you need to perform a comprehensive data quality and risk assessment. Your goal is to ensure the raw data meets fundamental quality standards, is free from hidden biases, and has not drifted significantly from historical data, thereby reducing model risk and supporting responsible AI practices.")
+    st.markdown(f"This section guides you through loading your new dataset and configuring parameters for a tailored assessment. Defining these parameters upfront is crucial to align the assessment with your organization's specific model requirements and compliance policies.")
 
     t1, t2 = st.tabs(["Upload Dataset", "Load Sample"])
     with t2:
@@ -488,7 +488,7 @@ if st.session_state['current_page'] == "Data Upload & Configuration":
         # Threshold Overrides
         custom_thresholds = {}
         with st.expander("Override Default Thresholds"):
-            st.markdown(f"Maya can override predefined warning and failure thresholds for data quality, bias, and drift metrics to align with FinTech Innovators Inc.'s specific risk appetite.")
+            st.markdown(f"Maya can override predefined warning and failure thresholds for data quality, bias, and drift metrics to align with Software Innovators Inc.'s specific risk appetite.")
             st.markdown(f"### Data Quality Thresholds")
             st.markdown(f"**Missingness Ratio:** (> value WARN, > value FAIL)")
             dq_missing_warn = st.number_input(
@@ -669,7 +669,7 @@ if st.session_state['current_page'] == "Data Upload & Configuration":
 # Page: Data Quality
 if st.session_state['current_page'] == "Data Quality":
     st.markdown(f"# 2. Core Data Quality Assessment: Uncovering Raw Data Issues")
-    st.markdown(f"Before any sophisticated modeling, Maya must ensure the fundamental quality of the dataset. This means checking for common issues like missing values, duplicate entries, inconsistent data types, values outside expected ranges, and inappropriate cardinality for categorical features. Catching these problems early prevents downstream errors in model training, improves model robustness, and saves significant computational resources. For FinTech Innovators Inc., poor data quality could lead to inaccurate credit risk assessments, violating internal policies and potentially regulatory guidelines.")
+    st.markdown(f"Before any sophisticated modeling, Maya must ensure the fundamental quality of the dataset. This means checking for common issues like missing values, duplicate entries, inconsistent data types, values outside expected ranges, and inappropriate cardinality for categorical features. Catching these problems early prevents downstream errors in model training, improves model robustness, and saves significant computational resources. ")
     st.markdown(f"Maya will use the configured thresholds to assign a `PASS`, `WARN`, or `FAIL` status to each quality aspect of every feature.")
 
     st.markdown(
@@ -776,7 +776,7 @@ $$""")
 # Page: Bias Metrics
 if st.session_state['current_page'] == "Bias Metrics":
     st.markdown(f"# 3. Bias Metric Computation: Ensuring Fairness in Data")
-    st.markdown(f"At FinTech Innovators Inc., ensuring fairness and avoiding discrimination in credit decisions is not just a regulatory requirement but a core ethical principle. Maya understands that biases present in the training data can be learned and amplified by models, leading to unfair outcomes for certain demographic groups. Before training the credit approval model, she must quantify any inherent biases within the new dataset. This assessment helps her identify if the raw data itself exhibits disparities in credit repayment outcomes across sensitive attributes like `marital_status` or `region`.")
+    st.markdown(f"At Software Innovators Inc., ensuring fairness and avoiding discrimination in credit decisions is not just a regulatory requirement but a core ethical principle. Maya understands that biases present in the training data can be learned and amplified by models, leading to unfair outcomes for certain demographic groups. Before training the credit approval model, she must quantify any inherent biases within the new dataset. This assessment helps her identify if the raw data itself exhibits disparities in credit repayment outcomes across sensitive attributes like `marital_status` or `region`.")
     st.markdown(f"Since we are in a pre-training context (no model predictions yet), we will focus on measuring statistical parity and outcome disparities based on the *actual* target variable distributions across protected groups.")
 
     st.markdown(r"**Demographic Parity Difference (DPD):** Measures the difference in the proportion of the favorable outcome (e.g., loan repaid) between an unprivileged group and a privileged group. A value close to 0 indicates demographic parity.")
@@ -871,7 +871,7 @@ $$""")
 # Page: Drift
 if st.session_state['current_page'] == "Drift":
     st.markdown(f"# 4. Drift Detection: Monitoring Data Distribution Shifts")
-    st.markdown(f"FinTech Innovators Inc. operates in a dynamic financial market, where customer behaviors and economic conditions can change rapidly. Maya understands that a credit approval model trained on old data might become less accurate if the underlying data distribution shifts over time. This phenomenon, known as \"data drift,\" can severely degrade model performance in production. To mitigate this risk, Maya needs to compare the new credit application dataset against a historical \"baseline\" dataset (the data the current production model was originally trained on).")
+    st.markdown(f"In any dynamic environment, the characteristics of data can change over time due to evolving behaviors, external factors, or operational changes. A machine learning model trained on older data may become less accurate if the underlying data distribution shifts—a phenomenon known as 'data drift.' To mitigate this risk, it is important to compare the new dataset against a historical 'baseline' dataset (the data the current production model was originally trained or validated on) to detect and quantify any significant changes.")
 
     st.markdown(r"The **Population Stability Index (PSI)** is a widely used metric to quantify data drift for numerical features. It measures how much a variable's distribution has changed from a baseline period to a current period.")
     st.markdown(
@@ -993,7 +993,7 @@ if st.session_state['current_page'] == "Drift":
 # Page: Summary & Export
 if st.session_state['current_page'] == "Summary & Export":
     st.markdown(f"# 5. Overall Readiness Decision and Comprehensive Reporting")
-    st.markdown(f"After conducting thorough data quality, bias, and drift assessments, Maya needs to synthesize all findings into a clear, deterministic decision regarding the dataset's readiness for model training. This final decision, along with a comprehensive report, is critical for communication with Model Validators (Persona 2) and Risk/Compliance Partners (Persona 3) at FinTech Innovators Inc. It provides a transparent, quantitative basis for proceeding or halting model development, ensuring accountability and adherence to governance standards.")
+    st.markdown(f"After conducting thorough data quality, bias, and drift assessments, Maya needs to synthesize all findings into a clear, deterministic decision regarding the dataset's readiness for model training. This final decision, along with a comprehensive report, is critical for communication with Model Validators (Persona 2) and Risk/Compliance Partners (Persona 3) at Software Innovators Inc. It provides a transparent, quantitative basis for proceeding or halting model development, ensuring accountability and adherence to governance standards.")
     st.markdown(f"The overall readiness decision follows a strict logic:")
     st.markdown(f"-   **DO NOT DEPLOY:** If any 'FAIL' condition is identified across data quality, bias, or drift metrics. This indicates severe issues that must be addressed before proceeding.")
     st.markdown(f"-   **PROCEED WITH MITIGATION:** If there are only 'WARN' conditions, but no 'FAIL's. This means the dataset has minor issues that can likely be mitigated (e.g., specific data cleaning, bias-aware modeling) while proceeding with development.")
