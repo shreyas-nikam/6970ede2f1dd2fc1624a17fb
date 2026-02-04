@@ -7,10 +7,10 @@ The **Data Quality, Provenance & Bias Metrics Dashboard** is a Streamlit applica
 
 **High-Level Story Flow:**
 
-1.  **Welcome & Context:** The application introduces the persona of Maya, a Senior ML Engineer at "FinTech Innovators Inc.", tasked with assessing a new dataset for a credit approval model.
+1.  **Welcome & Context:** The application introduces the persona of Maya, a Senior ML Engineer at "Software Innovators Inc.", tasked with assessing a new dataset for a credit approval model.
 2.  **Data Upload & Configuration:** Maya uploads her primary credit application dataset and an optional historical baseline. She then configures critical parameters: the target label, sensitive attributes, protected group definitions, and custom thresholds for data quality, bias, and drift metrics.
 3.  **Data Quality Assessment:** The app guides Maya through a series of data quality checks (missingness, duplicates, type consistency, range violations, cardinality) for each feature. She reviews the results, noting 'PASS', 'WARN', or 'FAIL' statuses, which helps her identify fundamental issues requiring immediate attention.
-4.  **Bias Metrics Computation:** Maya proceeds to quantify potential biases in the dataset, examining metrics like Demographic Parity Difference and Disparate Impact Ratio across sensitive attributes. This helps FinTech Innovators Inc. ensure fair lending practices and comply with ethical guidelines.
+4.  **Bias Metrics Computation:** Maya proceeds to quantify potential biases in the dataset, examining metrics like Demographic Parity Difference and Disparate Impact Ratio across sensitive attributes. This helps Software Innovators Inc. ensure fair lending practices and comply with ethical guidelines.
 5.  **Drift Detection:** If a baseline dataset was provided, the application computes the Population Stability Index (PSI) for numerical features, allowing Maya to detect significant shifts in data distributions compared to historical data. Visualizations aid in understanding these shifts.
 6.  **Summary & Export:** Finally, all assessment results are synthesized into an overall dataset readiness decision ('DO NOT DEPLOY', 'PROCEED WITH MITIGATION', or 'PROCEED'). The application generates comprehensive JSON reports, a human-readable executive summary, and bundles all audit-ready artifacts, including an SHA-256 evidence manifest, into a secure zip archive. This ensures traceability and compliance for internal review and regulatory examinations.
 
@@ -156,9 +156,9 @@ with st.sidebar:
 ```python
 if st.session_state['current_page'] == "Data Upload & Configuration":
     st.markdown(f"# 1. Setting the Stage: Data Loading and Configuration")
-    st.markdown(f"Welcome to this hands-on lab designed for ML Engineers, Model Validators, and Risk/Compliance Partners. In this notebook, we will step into the shoes of Maya, a Senior ML Engineer at \"FinTech Innovators Inc.\". Maya's team is responsible for developing and maintaining robust machine learning models that adhere to strict regulatory standards and deliver fair outcomes to customers.")
-    st.markdown(f"Today, Maya is tasked with preparing a new dataset for a credit approval model. Before FinTech Innovators Inc. commits to costly model training and potential deployment, Maya needs to perform a comprehensive data quality and risk assessment. Her goal is to ensure the raw data meets fundamental quality standards, does not contain hidden biases, and has not drifted significantly from historical data, thereby preventing unnecessary model risk and ensuring compliance.")
-    st.markdown(f"This section guides Maya through loading her new credit application dataset and configuring parameters for a tailored assessment. Defining these parameters upfront is crucial to align the assessment with FinTech Innovators Inc.'s specific model requirements and compliance policies.")
+    st.markdown(f"Welcome to this hands-on lab designed for ML Engineers, Model Validators, and Risk/Compliance Partners. In this notebook, we will step into the shoes of Maya, a Senior ML Engineer at \"Software Innovators Inc.\". Maya's team is responsible for developing and maintaining robust machine learning models that adhere to strict regulatory standards and deliver fair outcomes to customers.")
+    st.markdown(f"Today, Maya is tasked with preparing a new dataset for a credit approval model. Before Software Innovators Inc. commits to costly model training and potential deployment, Maya needs to perform a comprehensive data quality and risk assessment. Her goal is to ensure the raw data meets fundamental quality standards, does not contain hidden biases, and has not drifted significantly from historical data, thereby preventing unnecessary model risk and ensuring compliance.")
+    st.markdown(f"This section guides Maya through loading her new credit application dataset and configuring parameters for a tailored assessment. Defining these parameters upfront is crucial to align the assessment with Software Innovators Inc.'s specific model requirements and compliance policies.")
 
     st.subheader("Upload Datasets")
     primary_uploaded_file = st.file_uploader("Upload Primary Dataset (CSV)", type=["csv"], key="primary_uploader")
@@ -193,7 +193,7 @@ if st.session_state['current_page'] == "Data Upload & Configuration":
         target_col_input = st.selectbox("Select Target Label Column", all_columns, key="target_col_input")
         sensitive_cols_input = st.multiselect("Select Sensitive Attributes (for Bias Detection)", all_columns, key="sensitive_cols_input")
 
-        st.markdown(f"For FinTech Innovators Inc., a key concern is ensuring fair lending practices. Therefore, identifying sensitive attributes like `{', '.join(sensitive_cols_input) if sensitive_cols_input else '...'}` is paramount to later check for potential biases.")
+        st.markdown(f"For Software Innovators Inc., a key concern is ensuring fair lending practices. Therefore, identifying sensitive attributes like `{', '.join(sensitive_cols_input) if sensitive_cols_input else '...'}` is paramount to later check for potential biases.")
 
         # Protected Groups configuration (default example provided for credit data)
         with st.expander("Define Protected Groups (e.g., Privileged/Unprivileged)"):
@@ -225,7 +225,7 @@ if st.session_state['current_page'] == "Data Upload & Configuration":
         # Threshold Overrides
         custom_thresholds = {}
         with st.expander("Override Default Thresholds"):
-            st.markdown(f"Maya can override predefined warning and failure thresholds for data quality, bias, and drift metrics to align with FinTech Innovators Inc.'s specific risk appetite.")
+            st.markdown(f"Maya can override predefined warning and failure thresholds for data quality, bias, and drift metrics to align with Software Innovators Inc.'s specific risk appetite.")
             st.markdown(f"### Data Quality Thresholds")
             st.markdown(f"**Missingness Ratio:** (> value WARN, > value FAIL)")
             dq_missing_warn = st.number_input("Missingness WARN Ratio", value=0.05, format="%.2f", key="dq_missing_warn")
@@ -349,7 +349,7 @@ if st.session_state['current_page'] == "Data Upload & Configuration":
 ```python
 if st.session_state['current_page'] == "Data Quality":
     st.markdown(f"# 2. Core Data Quality Assessment: Uncovering Raw Data Issues")
-    st.markdown(f"Before any sophisticated modeling, Maya must ensure the fundamental quality of the dataset. This means checking for common issues like missing values, duplicate entries, inconsistent data types, values outside expected ranges, and inappropriate cardinality for categorical features. Catching these problems early prevents downstream errors in model training, improves model robustness, and saves significant computational resources. For FinTech Innovators Inc., poor data quality could lead to inaccurate credit risk assessments, violating internal policies and potentially regulatory guidelines.")
+    st.markdown(f"Before any sophisticated modeling, Maya must ensure the fundamental quality of the dataset. This means checking for common issues like missing values, duplicate entries, inconsistent data types, values outside expected ranges, and inappropriate cardinality for categorical features. Catching these problems early prevents downstream errors in model training, improves model robustness, and saves significant computational resources. For Software Innovators Inc., poor data quality could lead to inaccurate credit risk assessments, violating internal policies and potentially regulatory guidelines.")
     st.markdown(f"Maya will use the configured thresholds to assign a 'PASS', 'WARN', or 'FAIL' status to each quality aspect of every feature.")
 
     st.markdown(r"**Missingness Ratio ($M_i$):** The proportion of missing values for feature $i$.")
@@ -457,7 +457,7 @@ if st.session_state['current_page'] == "Data Quality":
 ```python
 if st.session_state['current_page'] == "Bias Metrics":
     st.markdown(f"# 3. Bias Metric Computation: Ensuring Fairness in Data")
-    st.markdown(f"At FinTech Innovators Inc., ensuring fairness and avoiding discrimination in credit decisions is not just a regulatory requirement but a core ethical principle. Maya understands that biases present in the training data can be learned and amplified by models, leading to unfair outcomes for certain demographic groups. Before training the credit approval model, she must quantify any inherent biases within the new dataset. This assessment helps her identify if the raw data itself exhibits disparities in credit repayment outcomes across sensitive attributes like `marital_status` or `region`.")
+    st.markdown(f"At Software Innovators Inc., ensuring fairness and avoiding discrimination in credit decisions is not just a regulatory requirement but a core ethical principle. Maya understands that biases present in the training data can be learned and amplified by models, leading to unfair outcomes for certain demographic groups. Before training the credit approval model, she must quantify any inherent biases within the new dataset. This assessment helps her identify if the raw data itself exhibits disparities in credit repayment outcomes across sensitive attributes like `marital_status` or `region`.")
     st.markdown(f"Since we are in a pre-training context (no model predictions yet), we will focus on measuring statistical parity and outcome disparities based on the *actual* target variable distributions across protected groups.")
 
     st.markdown(r"**Demographic Parity Difference (DPD):** Measures the difference in the proportion of the favorable outcome (e.g., loan repaid) between an unprivileged group and a privileged group. A value close to 0 indicates demographic parity.")
@@ -560,12 +560,12 @@ if st.session_state['current_page'] == "Bias Metrics":
 
             st.markdown(f"---")
             st.markdown(f"### Explanation of Execution")
-            st.markdown(f"The bias metrics report provides Maya with quantitative evidence of fairness (or lack thereof) in the raw data. For instance, if the `region` attribute shows a Disparate Impact Ratio significantly below 1 (e.g., for the 'South' region), it indicates that customers from this region are less likely to have favorable credit outcomes ($Y=1$) in the dataset compared to the privileged 'North' region. This is a critical 'WARN' or 'FAIL' condition for FinTech Innovators Inc.")
+            st.markdown(f"The bias metrics report provides Maya with quantitative evidence of fairness (or lack thereof) in the raw data. For instance, if the `region` attribute shows a Disparate Impact Ratio significantly below 1 (e.g., for the 'South' region), it indicates that customers from this region are less likely to have favorable credit outcomes ($Y=1$) in the dataset compared to the privileged 'North' region. This is a critical 'WARN' or 'FAIL' condition for Software Innovators Inc.")
             st.markdown(f"Maya must now consider strategies to mitigate these biases *before* model training. This could involve:")
             st.markdown(f"-   **Data collection review:** Investigating if the data collection process itself introduced biases.")
             st.markdown(f"-   **Feature engineering:** Creating new features that might reduce reliance on sensitive attributes.")
             st.markdown(f"-   **Resampling techniques:** Over-sampling underrepresented groups or under-sampling overrepresented groups to balance the dataset.")
-            st.markdown(f"These steps are crucial for FinTech Innovators Inc. to ensure equitable credit access and avoid legal or reputational risks.")
+            st.markdown(f"These steps are crucial for Software Innovators Inc. to ensure equitable credit access and avoid legal or reputational risks.")
 ```
 
 #### Page: Drift
@@ -573,7 +573,7 @@ if st.session_state['current_page'] == "Bias Metrics":
 ```python
 if st.session_state['current_page'] == "Drift":
     st.markdown(f"# 4. Drift Detection: Monitoring Data Distribution Shifts")
-    st.markdown(f"FinTech Innovators Inc. operates in a dynamic financial market, where customer behaviors and economic conditions can change rapidly. Maya understands that a credit approval model trained on old data might become less accurate if the underlying data distribution shifts over time. This phenomenon, known as \"data drift,\" can severely degrade model performance in production. To mitigate this risk, Maya needs to compare the new credit application dataset against a historical \"baseline\" dataset (the data the current production model was originally trained on).")
+    st.markdown(f"Software Innovators Inc. operates in a dynamic financial market, where customer behaviors and economic conditions can change rapidly. Maya understands that a credit approval model trained on old data might become less accurate if the underlying data distribution shifts over time. This phenomenon, known as \"data drift,\" can severely degrade model performance in production. To mitigate this risk, Maya needs to compare the new credit application dataset against a historical \"baseline\" dataset (the data the current production model was originally trained on).")
 
     st.markdown(r"The **Population Stability Index (PSI)** is a widely used metric to quantify data drift for numerical features. It measures how much a variable's distribution has changed from a baseline period to a current period.")
     st.markdown(r"**Population Stability Index (PSI):** For each feature, the PSI is calculated by:")
@@ -679,8 +679,8 @@ if st.session_state['current_page'] == "Drift":
             st.markdown(f"This insight is crucial for Maya:")
             st.markdown(f"-   **Model Re-training:** A significant drift (`FAIL`) in key features might necessitate immediate re-training of the credit approval model using the new data.")
             st.markdown(f"-   **Monitoring Strategy:** Even a 'WARN' suggests closer monitoring of the model's performance on these features in production.")
-            st.markdown(f"-   **Business Context:** It prompts FinTech Innovators Inc. to investigate the business reasons behind the drift, informing both model development and business strategy.")
-            st.markdown(f"By systematically identifying data drift, Maya helps FinTech Innovators Inc. maintain accurate and relevant models, preventing unexpected performance degradation in live environments.")
+            st.markdown(f"-   **Business Context:** It prompts Software Innovators Inc. to investigate the business reasons behind the drift, informing both model development and business strategy.")
+            st.markdown(f"By systematically identifying data drift, Maya helps Software Innovators Inc. maintain accurate and relevant models, preventing unexpected performance degradation in live environments.")
         else:
             st.info(st.session_state['drift_detection_results']['message'])
 
@@ -691,7 +691,7 @@ if st.session_state['current_page'] == "Drift":
 ```python
 if st.session_state['current_page'] == "Summary & Export":
     st.markdown(f"# 5. Overall Readiness Decision and Comprehensive Reporting")
-    st.markdown(f"After conducting thorough data quality, bias, and drift assessments, Maya needs to synthesize all findings into a clear, deterministic decision regarding the dataset's readiness for model training. This final decision, along with a comprehensive report, is critical for communication with Model Validators (Persona 2) and Risk/Compliance Partners (Persona 3) at FinTech Innovators Inc. It provides a transparent, quantitative basis for proceeding or halting model development, ensuring accountability and adherence to governance standards.")
+    st.markdown(f"After conducting thorough data quality, bias, and drift assessments, Maya needs to synthesize all findings into a clear, deterministic decision regarding the dataset's readiness for model training. This final decision, along with a comprehensive report, is critical for communication with Model Validators (Persona 2) and Risk/Compliance Partners (Persona 3) at Software Innovators Inc. It provides a transparent, quantitative basis for proceeding or halting model development, ensuring accountability and adherence to governance standards.")
     st.markdown(f"The overall readiness decision follows a strict logic:")
     st.markdown(f"-   **DO NOT DEPLOY:** If any 'FAIL' condition is identified across data quality, bias, or drift metrics. This indicates severe issues that must be addressed before proceeding.")
     st.markdown(f"-   **PROCEED WITH MITIGATION:** If there are only 'WARN' conditions, but no 'FAIL's. This means the dataset has minor issues that can likely be mitigated (e.g., specific data cleaning, bias-aware modeling) while proceeding with development.")
@@ -764,11 +764,11 @@ if st.session_state['current_page'] == "Summary & Export":
 
             st.markdown(f"---")
             st.markdown(f"### Explanation of Execution")
-            st.markdown(f"Maya has now generated a comprehensive suite of reports. The `overall_dataset_readiness_status` provides a definitive answer for her stakeholders. For FinTech Innovators Inc., a 'DO NOT DEPLOY' status (due to the simulated 'FAIL' conditions in our sample data) means Maya must halt the model development pipeline. She then shares the `session04_executive_summary.md` with the Model Validator and Risk/Compliance Partner. This markdown document provides a high-level overview, highlighting critical issues (e.g., \"Feature `income`: Missingness: 25.00% (`FAIL`)\", \"Sensitive Attribute `region`: Disparate Impact Ratio: 0.6700 (`FAIL`)\"), and the clear recommendation.")
-            st.markdown(f"The JSON reports (e.g., `data_quality_report.json`) provide the granular details necessary for deeper investigation by the technical team. This structured reporting ensures that FinTech Innovators Inc. maintains a clear audit trail for all data-related decisions and adheres to its internal governance framework.")
+            st.markdown(f"Maya has now generated a comprehensive suite of reports. The `overall_dataset_readiness_status` provides a definitive answer for her stakeholders. For Software Innovators Inc., a 'DO NOT DEPLOY' status (due to the simulated 'FAIL' conditions in our sample data) means Maya must halt the model development pipeline. She then shares the `session04_executive_summary.md` with the Model Validator and Risk/Compliance Partner. This markdown document provides a high-level overview, highlighting critical issues (e.g., \"Feature `income`: Missingness: 25.00% (`FAIL`)\", \"Sensitive Attribute `region`: Disparate Impact Ratio: 0.6700 (`FAIL`)\"), and the clear recommendation.")
+            st.markdown(f"The JSON reports (e.g., `data_quality_report.json`) provide the granular details necessary for deeper investigation by the technical team. This structured reporting ensures that Software Innovators Inc. maintains a clear audit trail for all data-related decisions and adheres to its internal governance framework.")
 
             st.markdown(f"## 6. Exporting Audit Artifacts: Ensuring Traceability and Compliance")
-            st.markdown(f"For FinTech Innovators Inc., regulatory compliance and internal auditability are paramount. Every decision related to model development, especially data quality, must be fully traceable and defensible. Maya's final, critical step is to bundle all generated reports, configurations, and an evidence manifest (containing SHA-256 hashes of all artifacts) into a secure, version-controlled zip archive. This ensures that the assessment results are immutable, tamper-evident, and readily available for future audits or reviews by risk and compliance teams.")
+            st.markdown(f"For Software Innovators Inc., regulatory compliance and internal auditability are paramount. Every decision related to model development, especially data quality, must be fully traceable and defensible. Maya's final, critical step is to bundle all generated reports, configurations, and an evidence manifest (containing SHA-256 hashes of all artifacts) into a secure, version-controlled zip archive. This ensures that the assessment results are immutable, tamper-evident, and readily available for future audits or reviews by risk and compliance teams.")
             st.markdown(f"**Evidence Manifest:** A record of all generated files, including their SHA-256 hash. The SHA-256 hash is a cryptographic checksum that uniquely identifies the content of a file. If even a single bit in the file changes, its SHA-256 hash will be drastically different.")
             st.markdown(r"$$ \text{{SHA-256 Hash}} = \text{{SHA256}}(\text{{file\_content}}) $$")
             st.markdown(r"where SHA-256 Hash is the cryptographic checksum, and file\_content is the entire binary content of the file.")
@@ -776,6 +776,6 @@ if st.session_state['current_page'] == "Summary & Export":
             
             st.markdown(f"---")
             st.markdown(f"### Explanation of Execution")
-            st.markdown(f"Maya has successfully created a zip archive containing all the assessment reports, the configuration snapshot, and a crucial `evidence_manifest.json` file. This manifest acts as a digital fingerprint for all generated documents. The verification step demonstrates how a Model Validator or Risk Partner at FinTech Innovators Inc. can confirm the integrity of any report by recomputing its hash and comparing it against the manifest. If any report were to be tampered with, the hash verification would fail, immediately flagging a potential issue.")
-            st.markdown(f"This robust export mechanism ensures that FinTech Innovators Inc. can confidently demonstrate compliance, provide auditable evidence of data quality and fairness assessments, and maintain strict governance over its ML models throughout their lifecycle. Maya's work is complete, providing FinTech Innovators Inc. with the objective evidence needed to make informed decisions about its credit approval model.")
+            st.markdown(f"Maya has successfully created a zip archive containing all the assessment reports, the configuration snapshot, and a crucial `evidence_manifest.json` file. This manifest acts as a digital fingerprint for all generated documents. The verification step demonstrates how a Model Validator or Risk Partner at Software Innovators Inc. can confirm the integrity of any report by recomputing its hash and comparing it against the manifest. If any report were to be tampered with, the hash verification would fail, immediately flagging a potential issue.")
+            st.markdown(f"This robust export mechanism ensures that Software Innovators Inc. can confidently demonstrate compliance, provide auditable evidence of data quality and fairness assessments, and maintain strict governance over its ML models throughout their lifecycle. Maya's work is complete, providing Software Innovators Inc. with the objective evidence needed to make informed decisions about its credit approval model.")
 ```

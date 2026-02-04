@@ -8,11 +8,11 @@ status: Published
 ## 1. Setting the Stage: Data Loading and Configuration
 Duration: 0:10
 
-Welcome to this hands-on lab designed for ML Engineers, Model Validators, and Risk/Compliance Partners. In this notebook, we will step into the shoes of Maya, a Senior ML Engineer at "FinTech Innovators Inc.". Maya's team is responsible for developing and maintaining robust machine learning models that adhere to strict regulatory standards and deliver fair outcomes to customers.
+Welcome to this hands-on lab designed for ML Engineers, Model Validators, and Risk/Compliance Partners. In this notebook, we will step into the shoes of Maya, a Senior ML Engineer at "Software Innovators Inc.". Maya's team is responsible for developing and maintaining robust machine learning models that adhere to strict regulatory standards and deliver fair outcomes to customers.
 
-Today, Maya is tasked with preparing a new dataset for a credit approval model. Before FinTech Innovators Inc. commits to costly model training and potential deployment, Maya needs to perform a comprehensive data quality and risk assessment. Her goal is to ensure the raw data meets fundamental quality standards, does not contain hidden biases, and has not drifted significantly from historical data, thereby preventing unnecessary model risk and ensuring compliance.
+Today, Maya is tasked with preparing a new dataset for a credit approval model. Before Software Innovators Inc. commits to costly model training and potential deployment, Maya needs to perform a comprehensive data quality and risk assessment. Her goal is to ensure the raw data meets fundamental quality standards, does not contain hidden biases, and has not drifted significantly from historical data, thereby preventing unnecessary model risk and ensuring compliance.
 
-This section guides Maya through loading her new credit application dataset and configuring parameters for a tailored assessment. Defining these parameters upfront is crucial to align the assessment with FinTech Innovators Inc.'s specific model requirements and compliance policies.
+This section guides Maya through loading her new credit application dataset and configuring parameters for a tailored assessment. Defining these parameters upfront is crucial to align the assessment with Software Innovators Inc.'s specific model requirements and compliance policies.
 
 <aside class="positive">
 <b>The Importance of Context:</b> Understanding the business context (e.g., credit approval, FinTech) and persona (e.g., ML Engineer) helps in grasping why each assessment step is critical. Poor data quality, undetected bias, or data drift can lead to significant financial losses, reputational damage, and regulatory penalties in real-world applications.
@@ -95,7 +95,7 @@ with st.expander("Define Protected Groups (e.g., Privileged/Unprivileged)"):
 ```
 
 #### Threshold Overrides
-The application comes with default thresholds for 'WARN' and 'FAIL' conditions for data quality, bias, and drift metrics. Maya can customize these thresholds to align with FinTech Innovators Inc.'s specific risk appetite and compliance policies. For example, a higher missingness ratio might be acceptable for some features, while for others, even a small ratio could be a 'FAIL'.
+The application comes with default thresholds for 'WARN' and 'FAIL' conditions for data quality, bias, and drift metrics. Maya can customize these thresholds to align with Software Innovators Inc.'s specific risk appetite and compliance policies. For example, a higher missingness ratio might be acceptable for some features, while for others, even a small ratio could be a 'FAIL'.
 
 ```python
 with st.expander("Override Default Thresholds"):
@@ -124,7 +124,7 @@ Once applied, the current configuration is displayed in JSON format, providing a
 ## 2. Core Data Quality Assessment: Uncovering Raw Data Issues
 Duration: 0:15
 
-Before any sophisticated modeling, Maya must ensure the fundamental quality of the dataset. This means checking for common issues like missing values, duplicate entries, inconsistent data types, values outside expected ranges, and inappropriate cardinality for categorical features. Catching these problems early prevents downstream errors in model training, improves model robustness, and saves significant computational resources. For FinTech Innovators Inc., poor data quality could lead to inaccurate credit risk assessments, violating internal policies and potentially regulatory guidelines.
+Before any sophisticated modeling, Maya must ensure the fundamental quality of the dataset. This means checking for common issues like missing values, duplicate entries, inconsistent data types, values outside expected ranges, and inappropriate cardinality for categorical features. Catching these problems early prevents downstream errors in model training, improves model robustness, and saves significant computational resources. For Software Innovators Inc., poor data quality could lead to inaccurate credit risk assessments, violating internal policies and potentially regulatory guidelines.
 
 Maya will use the configured thresholds to assign a 'PASS', 'WARN', or 'FAIL' status to each quality aspect of every feature.
 
@@ -187,7 +187,7 @@ By addressing these issues proactively, Maya ensures the credit approval model r
 ## 3. Bias Metric Computation: Ensuring Fairness in Data
 Duration: 0:15
 
-At FinTech Innovators Inc., ensuring fairness and avoiding discrimination in credit decisions is not just a regulatory requirement but a core ethical principle. Maya understands that biases present in the training data can be learned and amplified by models, leading to unfair outcomes for certain demographic groups. Before training the credit approval model, she must quantify any inherent biases within the new dataset. This assessment helps her identify if the raw data itself exhibits disparities in credit repayment outcomes across sensitive attributes like `marital_status` or `region`.
+At Software Innovators Inc., ensuring fairness and avoiding discrimination in credit decisions is not just a regulatory requirement but a core ethical principle. Maya understands that biases present in the training data can be learned and amplified by models, leading to unfair outcomes for certain demographic groups. Before training the credit approval model, she must quantify any inherent biases within the new dataset. This assessment helps her identify if the raw data itself exhibits disparities in credit repayment outcomes across sensitive attributes like `marital_status` or `region`.
 
 Since we are in a pre-training context (no model predictions yet), we will focus on measuring statistical parity and outcome disparities based on the *actual* target variable distributions across protected groups.
 
@@ -241,19 +241,19 @@ The results table provides a breakdown of each bias metric for every sensitive a
 </aside>
 
 #### Explanation of Execution
-The bias metrics report provides Maya with quantitative evidence of fairness (or lack thereof) in the raw data. For instance, if the `region` attribute shows a Disparate Impact Ratio significantly below 1 (e.g., for the 'South' region), it indicates that customers from this region are less likely to have favorable credit outcomes ($Y=1$) in the dataset compared to the privileged 'North' region. This is a critical 'WARN' or 'FAIL' condition for FinTech Innovators Inc.
+The bias metrics report provides Maya with quantitative evidence of fairness (or lack thereof) in the raw data. For instance, if the `region` attribute shows a Disparate Impact Ratio significantly below 1 (e.g., for the 'South' region), it indicates that customers from this region are less likely to have favorable credit outcomes ($Y=1$) in the dataset compared to the privileged 'North' region. This is a critical 'WARN' or 'FAIL' condition for Software Innovators Inc.
 
 Maya must now consider strategies to mitigate these biases *before* model training. This could involve:
 -   **Data collection review:** Investigating if the data collection process itself introduced biases.
 -   **Feature engineering:** Creating new features that might reduce reliance on sensitive attributes.
 -   **Resampling techniques:** Over-sampling underrepresented groups or under-sampling overrepresented groups to balance the dataset.
 
-These steps are crucial for FinTech Innovators Inc. to ensure equitable credit access and avoid legal or reputational risks.
+These steps are crucial for Software Innovators Inc. to ensure equitable credit access and avoid legal or reputational risks.
 
 ## 4. Drift Detection: Monitoring Data Distribution Shifts
 Duration: 0:15
 
-FinTech Innovators Inc. operates in a dynamic financial market, where customer behaviors and economic conditions can change rapidly. Maya understands that a credit approval model trained on old data might become less accurate if the underlying data distribution shifts over time. This phenomenon, known as "data drift," can severely degrade model performance in production. To mitigate this risk, Maya needs to compare the new credit application dataset against a historical "baseline" dataset (the data the current production model was originally trained on).
+Software Innovators Inc. operates in a dynamic financial market, where customer behaviors and economic conditions can change rapidly. Maya understands that a credit approval model trained on old data might become less accurate if the underlying data distribution shifts over time. This phenomenon, known as "data drift," can severely degrade model performance in production. To mitigate this risk, Maya needs to compare the new credit application dataset against a historical "baseline" dataset (the data the current production model was originally trained on).
 
 ### Population Stability Index (PSI)
 
@@ -317,14 +317,14 @@ Maya examines the PSI results to detect significant shifts. For instance, if `in
 This insight is crucial for Maya:
 -   **Model Re-training:** A significant drift (`FAIL`) in key features might necessitate immediate re-training of the credit approval model using the new data.
 -   **Monitoring Strategy:** Even a 'WARN' suggests closer monitoring of the model's performance on these features in production.
--   **Business Context:** It prompts FinTech Innovators Inc. to investigate the business reasons behind the drift, informing both model development and business strategy.
+-   **Business Context:** It prompts Software Innovators Inc. to investigate the business reasons behind the drift, informing both model development and business strategy.
 
-By systematically identifying data drift, Maya helps FinTech Innovators Inc. maintain accurate and relevant models, preventing unexpected performance degradation in live environments.
+By systematically identifying data drift, Maya helps Software Innovators Inc. maintain accurate and relevant models, preventing unexpected performance degradation in live environments.
 
 ## 5. Overall Readiness Decision and Comprehensive Reporting
 Duration: 0:10
 
-After conducting thorough data quality, bias, and drift assessments, Maya needs to synthesize all findings into a clear, deterministic decision regarding the dataset's readiness for model training. This final decision, along with a comprehensive report, is critical for communication with Model Validators (Persona 2) and Risk/Compliance Partners (Persona 3) at FinTech Innovators Inc. It provides a transparent, quantitative basis for proceeding or halting model development, ensuring accountability and adherence to governance standards.
+After conducting thorough data quality, bias, and drift assessments, Maya needs to synthesize all findings into a clear, deterministic decision regarding the dataset's readiness for model training. This final decision, along with a comprehensive report, is critical for communication with Model Validators (Persona 2) and Risk/Compliance Partners (Persona 3) at Software Innovators Inc. It provides a transparent, quantitative basis for proceeding or halting model development, ensuring accountability and adherence to governance standards.
 
 The overall readiness decision follows a strict logic:
 -   **DO NOT DEPLOY:** If any 'FAIL' condition is identified across data quality, bias, or drift metrics. This indicates severe issues that must be addressed before proceeding.
@@ -357,20 +357,20 @@ The executive summary (a markdown file) is displayed directly in the Streamlit a
 </button>
 
 ### Explanation of Execution
-Maya has now generated a comprehensive suite of reports. The `overall_dataset_readiness_status` provides a definitive answer for her stakeholders. For FinTech Innovators Inc., a 'DO NOT DEPLOY' status (due to the simulated 'FAIL' conditions in our sample data) means Maya must halt the model development pipeline. She then shares the `session04_executive_summary.md` with the Model Validator and Risk/Compliance Partner. This markdown document provides a high-level overview, highlighting critical issues (e.g., "Feature `income`: Missingness: 25.00% (`FAIL`)", "Sensitive Attribute `region`: Disparate Impact Ratio: 0.6700 (`FAIL`)"), and the clear recommendation.
+Maya has now generated a comprehensive suite of reports. The `overall_dataset_readiness_status` provides a definitive answer for her stakeholders. For Software Innovators Inc., a 'DO NOT DEPLOY' status (due to the simulated 'FAIL' conditions in our sample data) means Maya must halt the model development pipeline. She then shares the `session04_executive_summary.md` with the Model Validator and Risk/Compliance Partner. This markdown document provides a high-level overview, highlighting critical issues (e.g., "Feature `income`: Missingness: 25.00% (`FAIL`)", "Sensitive Attribute `region`: Disparate Impact Ratio: 0.6700 (`FAIL`)"), and the clear recommendation.
 
-The JSON reports (e.g., `data_quality_report.json`) provide the granular details necessary for deeper investigation by the technical team. This structured reporting ensures that FinTech Innovators Inc. maintains a clear audit trail for all data-related decisions and adheres to its internal governance framework.
+The JSON reports (e.g., `data_quality_report.json`) provide the granular details necessary for deeper investigation by the technical team. This structured reporting ensures that Software Innovators Inc. maintains a clear audit trail for all data-related decisions and adheres to its internal governance framework.
 
 ## 6. Exporting Audit Artifacts: Ensuring Traceability and Compliance
 Duration: 0:05
 
-For FinTech Innovators Inc., regulatory compliance and internal auditability are paramount. Every decision related to model development, especially data quality, must be fully traceable and defensible. Maya's final, critical step is to bundle all generated reports, configurations, and an evidence manifest (containing SHA-256 hashes of all artifacts) into a secure, version-controlled zip archive. This ensures that the assessment results are immutable, tamper-evident, and readily available for future audits or reviews by risk and compliance teams.
+For Software Innovators Inc., regulatory compliance and internal auditability are paramount. Every decision related to model development, especially data quality, must be fully traceable and defensible. Maya's final, critical step is to bundle all generated reports, configurations, and an evidence manifest (containing SHA-256 hashes of all artifacts) into a secure, version-controlled zip archive. This ensures that the assessment results are immutable, tamper-evident, and readily available for future audits or reviews by risk and compliance teams.
 
 **Evidence Manifest:** A record of all generated files, including their SHA-256 hash. The SHA-256 hash is a cryptographic checksum that uniquely identifies the content of a file. If even a single bit in the file changes, its SHA-256 hash will be drastically different.
 $$ \text{{SHA-256 Hash}} = \text{{SHA256}}(\text{{file\_content}}) $$
 Where SHA-256 Hash is the cryptographic checksum, and file\_content is the entire binary content of the file. This cryptographic integrity check confirms that the reports have not been altered since their generation.
 
 ### Explanation of Execution
-Maya has successfully created a zip archive containing all the assessment reports, the configuration snapshot, and a crucial `evidence_manifest.json` file. This manifest acts as a digital fingerprint for all generated documents. The verification step demonstrates how a Model Validator or Risk Partner at FinTech Innovators Inc. can confirm the integrity of any report by recomputing its hash and comparing it against the manifest. If any report were to be tampered with, the hash verification would fail, immediately flagging a potential issue.
+Maya has successfully created a zip archive containing all the assessment reports, the configuration snapshot, and a crucial `evidence_manifest.json` file. This manifest acts as a digital fingerprint for all generated documents. The verification step demonstrates how a Model Validator or Risk Partner at Software Innovators Inc. can confirm the integrity of any report by recomputing its hash and comparing it against the manifest. If any report were to be tampered with, the hash verification would fail, immediately flagging a potential issue.
 
-This robust export mechanism ensures that FinTech Innovators Inc. can confidently demonstrate compliance, provide auditable evidence of data quality and fairness assessments, and maintain strict governance over its ML models throughout their lifecycle. Maya's work is complete, providing FinTech Innovators Inc. with the objective evidence needed to make informed decisions about its credit approval model.
+This robust export mechanism ensures that Software Innovators Inc. can confidently demonstrate compliance, provide auditable evidence of data quality and fairness assessments, and maintain strict governance over its ML models throughout their lifecycle. Maya's work is complete, providing Software Innovators Inc. with the objective evidence needed to make informed decisions about its credit approval model.

@@ -2,13 +2,13 @@
 
 ## Case Context
 
-FinTech Innovators Inc. is a rapidly growing financial services company facing increasing regulatory scrutiny around algorithmic fairness in credit decisions. Last quarter, a competitor received a $5M fine for discriminatory lending practices traced back to biased training data. Your leadership team has mandated a "data-first" governance framework: no ML model enters production without documented data quality and fairness assessments.
+Software Innovators Inc. is a rapidly growing financial services company facing increasing regulatory scrutiny around algorithmic fairness in credit decisions. Last quarter, a competitor received a $5M fine for discriminatory lending practices traced back to biased training data. Your leadership team has mandated a "data-first" governance framework: no ML model enters production without documented data quality and fairness assessments.
 
 You've been assigned to evaluate a new credit application dataset before the team invests $200K in model development and infrastructure. Historical data shows that 30% of model failures stem from preventable data quality issues discovered post-deployment. Your assessment will determine whether to proceed, pause for data remediation, or halt the project entirely.
 
 ## Your Role
 
-You are Maya, a Senior ML Engineer at FinTech Innovators Inc. Today, you're conducting a pre-training data risk assessment—a critical gate in your organization's ML development lifecycle. Your stakeholders include Model Validators who need quantitative evidence, Risk/Compliance Partners who require audit trails, and executives who need clear go/no-go decisions. Your analysis will directly impact business strategy, model investment decisions, and regulatory compliance posture.
+You are Maya, a Senior ML Engineer at Software Innovators Inc. Today, you're conducting a pre-training data risk assessment—a critical gate in your organization's ML development lifecycle. Your stakeholders include Model Validators who need quantitative evidence, Risk/Compliance Partners who require audit trails, and executives who need clear go/no-go decisions. Your analysis will directly impact business strategy, model investment decisions, and regulatory compliance posture.
 
 ## What You Will Do
 

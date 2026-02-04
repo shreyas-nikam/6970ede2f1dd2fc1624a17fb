@@ -10,7 +10,7 @@ Here's a comprehensive `README.md` file for your Streamlit application lab proje
 
 Welcome to **QuLab: Lab 4**, a hands-on Streamlit application designed for ML Engineers, Model Validators, and Risk/Compliance Partners. This dashboard empowers users to perform comprehensive data quality, provenance, and bias assessments on datasets before they are used for model training or deployment.
 
-**Scenario**: Step into the shoes of Maya, a Senior ML Engineer at "FinTech Innovators Inc.". Maya's team is tasked with developing robust machine learning models that adhere to strict regulatory standards and deliver fair outcomes. Before committing to costly model training, Maya needs to ensure the raw data meets fundamental quality standards, does not contain hidden biases, and has not drifted significantly from historical data. This application helps Maya achieve her goal, preventing unnecessary model risk and ensuring compliance.
+**Scenario**: Step into the shoes of Maya, a Senior ML Engineer at "Software Innovators Inc.". Maya's team is tasked with developing robust machine learning models that adhere to strict regulatory standards and deliver fair outcomes. Before committing to costly model training, Maya needs to ensure the raw data meets fundamental quality standards, does not contain hidden biases, and has not drifted significantly from historical data. This application helps Maya achieve her goal, preventing unnecessary model risk and ensuring compliance.
 
 The application provides a structured workflow for:
 1.  **Loading and Configuring Datasets**: Setting up the primary and optional baseline datasets with assessment parameters.

@@ -1054,7 +1054,7 @@ def generate_reports(data_quality_results, bias_metrics_results, drift_detection
                 "Baseline dataset not provided for drift detection. No drift assessment performed.\n")
 
         f.write("--- \n")
-        f.write("## Recommendations for FinTech Innovators Inc.:  \n")
+        f.write("## Recommendations for Software Innovators Inc.:  \n")
         if readiness_decision == 'DO NOT DEPLOY':
             f.write("- **Immediate Action Required:** Dataset contains critical 'FAIL' conditions. Do NOT proceed with model training or deployment until all identified issues (e.g., high missingness, type inconsistencies, severe bias, significant drift) are thoroughly addressed and re-assessed.\n")
         elif readiness_decision == 'PROCEED WITH MITIGATION':
