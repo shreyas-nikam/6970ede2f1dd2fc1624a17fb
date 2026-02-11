@@ -1,17 +1,17 @@
-import streamlit as st
-import pandas as pd
-import json
-import os
-import datetime
-import zipfile
-import hashlib
-import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
-import shutil
-import uuid
 from source import *
+import uuid
+import shutil
+import seaborn as sns
 import matplotlib.pyplot as plt
+import numpy as np
+import hashlib
+import zipfile
+import datetime
+import os
+import json
+import pandas as pd
+import streamlit as st
+
 
 # Page Configuration
 st.set_page_config(
@@ -132,6 +132,15 @@ if 'cleanup_triggered' not in st.session_state:
 with st.sidebar:
     st.markdown(f"# Data Risk Assessment")
     st.markdown(f"**Persona:** Maya, Senior ML Engineer")
+    # Download button for datasets
+    st.markdown(
+        """
+        <a href="https://qucoursify.s3.us-east-1.amazonaws.com/gmu/Session+4/data/Sample+Datasets.zip" target="_blank" style="text-decoration: none;">
+            <button style="background-color: #4CAF50; color: white; padding: 10px 24px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px;">Download Sample Datasets</button>
+        </a>
+        """,
+        unsafe_allow_html=True
+    )
     st.markdown(f"---")
     st.session_state['current_page'] = st.selectbox(
         "Choose an Assessment Step:",
@@ -140,6 +149,7 @@ with st.sidebar:
         key="page_selector"
     )
     st.markdown(f"---")
+
     st.markdown(f"## Current Status:")
     if st.session_state.get('config_applied', False):
         st.markdown(f"✅ Configuration Applied")
